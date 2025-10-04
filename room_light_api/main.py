@@ -8,19 +8,20 @@ app = FastAPI()
 
 
 @app.post("/lights/{command}", operation_id="change_light_state")
-async def change_light_state(command: str):
+async def change_light_state(command: str) -> dict:
     if command.lower() not in ["on", "off"]:
         return {"error": "Invalid state. Use 'on' or 'off'."}
-    # Here you would add code to actually control the lights
+
     if command.lower() == "on" and (await get_light_state()) is False:
         await set_light_state(True)
     elif command.lower() == "off" and (await get_light_state()) is True:
         await set_light_state(False)
     else:
         return {"message": f"Lights are already {command.lower()}"}
+
     return {"message": f"Lights turned {command.lower()}"}
 
 
 if __name__ == "__main__":
     mcp = FastApiMCP(app, include_operations=["change_light_state"])
-    mcp.mount()
+    mcp.mount_http()
